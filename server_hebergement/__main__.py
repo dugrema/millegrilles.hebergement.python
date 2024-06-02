@@ -6,8 +6,8 @@ import signal
 from millegrilles_web.WebAppMain import WebAppMain
 
 from millegrilles_web.WebAppMain import LOGGING_NAMES as LOGGING_NAMES_WEB, adjust_logging
-#from server_hebergement.WebServerMessages import WebServerMessages
-#from server_hebergement.Commandes import CommandMessagesHandler
+from server_hebergement.WebServerHebergement import WebServerHebergement
+from server_hebergement.Commandes import CommandHebergementHandler
 
 logger = logging.getLogger(__name__)
 
@@ -21,14 +21,14 @@ class MessagesAppMain(WebAppMain):
         self.__logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
         super().__init__()
 
-    #def init_command_handler(self) -> CommandMessagesHandler:
-    #    return CommandMessagesHandler(self)
+    def init_command_handler(self) -> CommandHebergementHandler:
+       return CommandHebergementHandler(self)
 
     async def configurer(self):
         await super().configurer()
 
     async def configurer_web_server(self):
-        #self._web_server = WebServerMessages(self.etat, self._commandes_handler)
+        self._web_server = WebServerHebergement(self.etat, self._commandes_handler)
         await self._web_server.setup(stop_event=self._stop_event)
 
     def exit_gracefully(self, signum=None, frame=None):
