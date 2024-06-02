@@ -9,8 +9,6 @@ ENV CA_PEM=/run/secrets/millegrille.cert.pem \
     REDIS_PASSWORD_PATH=/var/run/secrets/passwd.redis.txt \
     WEB_PORT=1443
 
-COPY static/ $BUNDLE_FOLDER/static
-
 COPY . $BUILD_FOLDER
 
 RUN cd $BUILD_FOLDER && \

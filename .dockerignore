@@ -1,0 +1,9 @@
+scripts
+tmp/
+
+.git
+.gitignore
+*.local
+*.development
+
+*.tar.gz
