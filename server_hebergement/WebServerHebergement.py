@@ -1,9 +1,18 @@
+import asyncio
 import logging
 
+from aiohttp import web
+from typing import Optional
+
+import redis
+
 from millegrilles_web.WebServer import WebServer
+from millegrilles_web import Constantes as ConstantesWeb
 
 from server_hebergement import Constantes as ConstantesHebergement
 from server_hebergement.SocketIoHebergementHandler import SocketIoHebergementHandler
+from server_hebergement.WebJwt import JwtHandler
+# from server_hebergement.WebConsignation import ConsignationHandler
 
 
 class WebServerHebergement(WebServer):
@@ -11,9 +20,19 @@ class WebServerHebergement(WebServer):
     def __init__(self, etat, commandes):
         self.__logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
         super().__init__(ConstantesHebergement.WEBAPP_PATH, etat, commandes)
+        self.__jwt_handler: Optional[JwtHandler] = None
+        self.__redis_session: Optional[redis.Redis] = None
+        # self.__consignation: Optional[ConsignationHandler] = None
 
     def get_nom_app(self) -> str:
         return ConstantesHebergement.APP_NAME
+
+    async def setup(self, configuration: Optional[dict] = None, stop_event: Optional[asyncio.Event] = None):
+        self.__redis_session = await self._connect_redis(ConstantesWeb.REDIS_DB_TOKENS)
+        self.__jwt_handler = JwtHandler(self.etat, self.__redis_session)
+        # self.__consignation = ConsignationHandler(self.etat)
+
+        await super().setup(configuration, stop_event)
 
     async def setup_socketio(self):
         """ Wiring socket.io """
@@ -24,3 +43,8 @@ class WebServerHebergement(WebServer):
     async def _preparer_routes(self):
         self.__logger.info("Preparer routes %s sous /%s" % (self.__class__.__name__, self.get_nom_app()))
         await super()._preparer_routes()
+        self._app.add_routes([
+            web.get(f'{self.app_path}/auth', self.__jwt_handler.handle_auth),
+            web.get(f'{self.app_path}/jwt', self.__jwt_handler.handle_get_jwt),
+            # web.get(f'{self.app_path}/consignation', self.__consignation.handle_get_consignation),
+        ])
