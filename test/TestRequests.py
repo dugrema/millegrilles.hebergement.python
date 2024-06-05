@@ -9,8 +9,8 @@ from millegrilles_messages.messages.FormatteurMessages import SignateurTransacti
 from millegrilles_messages.messages.EnveloppeCertificat import EnveloppeCertificat
 from millegrilles_messages.chiffrage.DechiffrageUtils import dechiffrer_reponse
 
-PATH_COLLECTIONS_CERT = '/var/opt/millegrilles/secrets/pki.collections.cert'
-PATH_COLLECTIONS_CLE = '/var/opt/millegrilles/secrets/pki.collections.cle'
+PATH_CORE_CERT = '/var/opt/millegrilles/secrets/pki.core.cert'
+PATH_CORE_CLE = '/var/opt/millegrilles/secrets/pki.core.cle'
 PATH_CERT_CA = '/var/opt/millegrilles/configuration/pki.millegrille.cert'
 
 HEBERGEMENT_HOST = environ.get('HEBERGEMENT_HOST')
@@ -18,7 +18,7 @@ HEBERGEMENT_HOST = environ.get('HEBERGEMENT_HOST')
 if HEBERGEMENT_HOST is None:
     raise Exception('env param manquant : HEBERGEMENT_HOST')
 
-clecert = CleCertificat.from_files(PATH_COLLECTIONS_CLE, PATH_COLLECTIONS_CERT)
+clecert = CleCertificat.from_files(PATH_CORE_CLE, PATH_CORE_CERT)
 enveloppe = clecert.enveloppe
 idmg = enveloppe.idmg
 
