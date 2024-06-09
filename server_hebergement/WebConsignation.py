@@ -222,7 +222,15 @@ class ConsignationHandler:
 
             path_upload = self.get_path_upload_fuuid(idmg, fuuid)
 
-            transaction = None
+            # Creer commande d'hebergement de fichier
+            contenu_commande = {'idmg': idmg, 'fuuid': fuuid}
+            formatteur_message = self.__etat.formatteur_message
+            transaction, message_id = formatteur_message.signer_message(
+                Constantes.KIND_COMMANDE, contenu_commande, 'Hebergement', action='ajouterFichier')
+            path_transaction = pathlib.Path(path_upload, ConstantesHebergement.FICHIER_TRANSACTION)
+            with open(path_transaction, 'wt') as fichier:
+                json.dump(transaction, fichier)
+
             cles = None
 
             path_etat = pathlib.Path(path_upload, ConstantesHebergement.FICHIER_ETAT)
@@ -234,8 +242,6 @@ class ConsignationHandler:
                     json.dump(etat, fichier)
 
             else:
-                transaction = None
-                cles = None
                 # Sauvegarder etat.json sans body
                 etat = {'hachage': fuuid, 'retryCount': 0,
                         'created': int(datetime.datetime.utcnow().timestamp() * 1000)}
@@ -361,7 +367,8 @@ class ConsignationHandler:
 
         pending = [
             asyncio.create_task(self.__stop_event.wait()),
-            asyncio.create_task(self.thread_verifier_parts())
+            asyncio.create_task(self.thread_verifier_parts()),
+            asyncio.create_task(self.__intake.run(self.__stop_event)),
         ]
 
         await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)

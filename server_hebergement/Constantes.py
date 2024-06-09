@@ -12,3 +12,5 @@ DIR_STAGING_UPLOAD = 'staging/upload'
 DIR_STAGING_INTAKE = 'staging/intake'
 
 FICHIER_ETAT = 'etat.json'
+FICHIER_TRANSACTION = 'transaction.json'
+
